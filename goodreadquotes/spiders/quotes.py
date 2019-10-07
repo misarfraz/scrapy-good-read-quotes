@@ -10,7 +10,7 @@ class QuotesSpider(scrapy.Spider):
     page_number_love = 2
     page_number_humor = 2
     allowed_domains = ['goodreads.com']
-    start_urls = ['https://www.goodreads.com/quotes?page=1', 'https://www.goodreads.com/quotes/tag/inspirational?page=1', 
+    start_urls = ['https://www.goodreads.com/quotes/tag/life?page=1', 'https://www.goodreads.com/quotes/tag/inspirational?page=1', 
     'https://www.goodreads.com/quotes/tag/love?page=1', 'https://www.goodreads.com/quotes/tag/humor?page=1']
 
     def parse(self, response):
@@ -23,7 +23,7 @@ class QuotesSpider(scrapy.Spider):
         elif 'humor' in response.url:
             source = 'humor'
         else:
-            source = 'popular'
+            source = 'life'
 
         all_div_quotes = response.css('div.quoteDetails')
 
@@ -45,7 +45,7 @@ class QuotesSpider(scrapy.Spider):
 
             yield items
 
-        next_page = 'https://www.goodreads.com/quotes?page=' + str(QuotesSpider.page_number)
+        next_page = 'https://www.goodreads.com/quotes/tag/life?page=' + str(QuotesSpider.page_number)
         if QuotesSpider.page_number < 101:
         	QuotesSpider.page_number += 1
         	yield response.follow(next_page, callback=self.parse)
