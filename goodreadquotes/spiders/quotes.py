@@ -36,9 +36,13 @@ class QuotesSpider(scrapy.Spider):
                 'div.quoteFooter div.greyText.smallText.left a::text').extract()
 
             items['source'] = source
-            items['title'] = quote_title[0]
+            title_trim_newLine = quote_title[0].replace('\n', '')
+            title = title_trim_newLine.strip('\"')
+            items['title'] = title
             items['length'] = len(quote_title[0])
-            items['author'] = quote_author[0]
+            author_trim_comma = quote_author[0].replace(',', '')
+            author = author_trim_comma.replace('\n', '')
+            items['author'] = author
             likes = quote_likes[0].split()
             items['likes'] = likes[0]
             items['tags'] = quote_tags
