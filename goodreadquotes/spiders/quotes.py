@@ -45,7 +45,7 @@ class QuotesSpider(scrapy.Spider):
             items['author'] = author
             likes = quote_likes[0].split()
             items['likes'] = likes[0]
-            items['tags'] = quote_tags
+            items['tags'] = quote_tags[0]
 
             yield items
 

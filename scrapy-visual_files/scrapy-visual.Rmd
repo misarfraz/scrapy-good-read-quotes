@@ -1,0 +1,88 @@
+---
+title: "Web Scraping GoodReads: The Power of Words"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data
+
+```{r quotes}
+quotes <- read.csv(file="quotes.csv", header=TRUE, sep=",")
+quotesLikes <- read.csv(file="quotes_likes.csv", header=TRUE, sep=",")
+summary(quotes)
+```
+
+## Relationship between length of quote and likes
+
+```{r authors, echo=FALSE}
+library(ggplot2)
+sp <- ggplot(data = quotesLikes , aes(x = length, y=likes))+
+  geom_point(col="red",pch = 17)+
+  xlab("Quote Length")+
+  ylab("Likes")+
+  ggtitle("Relationship between Length of Quote and Likes ")
+
+sp
+
+ggsave("length-likes.png")
+
+sp + scale_x_continuous(trans='log2') +
+  scale_y_continuous(trans='log2')
+
+ggsave("log-length-likes.png")
+
+model = lm(likes ~ length, data = quotes)
+summary(model)
+```
+
+## Top Authors
+
+```{r authors, echo=FALSE}
+
+quotesDF <- tbl_df(quotes)
+quotesDF1 <- quotesDF %>% group_by(author) %>% tally()  %>% top_n(25)
+
+ggplot(quotesDF1,aes(x=author, y=n)) +
+  geom_bar(stat = "identity", width = 0.5) +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+
+ggsave("top-authors.png")
+```
+
+## Word cloud of Tags associated with Quotes
+```{r}
+library(ggwordcloud)
+library(dplyr)
+
+quotesDF2 <- quotes %>% group_by(tags) %>% tally() %>% top_n(500)
+quotesDF3 <- quotes %>% group_by(tags, likes) %>% tally() %>% top_n(500)
+
+set.seed(42)
+ggplot(
+  quotesDF2,
+  aes(
+    label = tags, size= n,
+    color = factor(sample.int(10, nrow(quotesDF2), replace = TRUE))
+    ##angle = angle
+  )
+) +
+  geom_text_wordcloud_area() +
+  scale_size_area(max_size = 24) +
+  theme_minimal()
+
+ggsave("tags-word-cloud.png")
+```
+
+## Tags aand Likes
+
+```{r}
+quotesDF4 <- filter(quotes, tags=="inspirational")
+quotesDF5 <- filter(quotes, tags=="love")
+quotesDF6 <- filter(quotes, tags=="life")
+quotesDF7 <- filter(quotes, tags=="humor")
+```
+
+
